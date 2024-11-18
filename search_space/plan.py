@@ -198,6 +198,8 @@ class IntraStagePlanGenerator:
             if not self.curr.strategies:
                 self.curr.strategies = self._initial_strategies()
             else:
+                print("DFS STEP")
+                print("prev_strategies: ", self.curr.strategies) 
                 self.curr.strategies = self._next_strategy(copy.deepcopy(self.curr.strategies))
 
             if not self.curr.strategies:
@@ -259,10 +261,12 @@ class IntraStagePlanGenerator:
             memory_state_dict[stage_id] = memory_state
 
         sorted_stage_id = sorted(memory_state_dict, key=lambda x: memory_state_dict[x])
+        print("sorted_stage_id: ", sorted_stage_id)
         for stage_id in sorted_stage_id:
             dp_deg, tp_deg = strategies[stage_id]
             if dp_deg != 1:
                 strategies[stage_id] = (dp_deg // 2, tp_deg * 2)
+                print("Adjusting stage: ", stage_id)
                 return strategies
 
         return None

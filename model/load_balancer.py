@@ -130,10 +130,17 @@ class LayerLoadBalancer:
                                                                 device_types, plan.gbs, plan.batches)
             memory_exceeded, memory_state = self._detect_out_of_memory(stage_memory_demand, stage_memory_capacity)
             print(f'layer_partition: {layer_partition}')
-            print(f'stage_memory_demand: {stage_memory_demand}, memory_state: {memory_state}')
+            print(f'stage_memory_demand: {stage_memory_demand}')
+            print(f'memory_state: {memory_state}')
             if not memory_exceeded:
                 return layer_partition, cur_partition_attempt, memory_state
-
+            print("MEMORY EXCEEDED")
+            failures = []
+            for i in range(len(memory_state)):
+                if memory_state[i] < 0:
+                    failures.append(i)
+            print(f'Failures: {failures}')
+            print(f'Number of failures: {len(failures)}')
             stage_compute_performance = self._adj_compute_performance(stage_compute_performance, stage_memory_capacity,
                                                                       stage_memory_demand)
             if not stage_compute_performance:
