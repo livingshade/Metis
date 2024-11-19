@@ -122,7 +122,7 @@ class LayerLoadBalancer:
                         stage_compute_performance: List[float], stage_memory_capacity: List[int],
                         max_partition_attempts: int = 3) -> Tuple[Union[List, None], int, Union[List, None]]:
         device_types = self._device_types_by_node_sequence(plan.node_sequence)
-
+        failed_memory_stage = []
         cur_partition_attempt = 1
         while cur_partition_attempt <= max_partition_attempts:
             layer_partition, stage_compute_demand = self._partition_layers_by_compute_performance(stage_compute_performance)
@@ -133,22 +133,26 @@ class LayerLoadBalancer:
             print(f'stage_memory_demand: {stage_memory_demand}')
             print(f'memory_state: {memory_state}')
             if not memory_exceeded:
-                return layer_partition, cur_partition_attempt, memory_state
+                return layer_partition, cur_partition_attempt, memory_state, failed_memory_stage
             print("MEMORY EXCEEDED")
-            failures = []
-            for i in range(len(memory_state)):
-                if memory_state[i] < 0:
-                    failures.append(i)
-            print(f'Failures: {failures}')
-            print(f'Number of failures: {len(failures)}')
+            if min(memory_state) < 0:
+                failed_memory_stage.append(memory_state.index(min(memory_state)))
+            # failed_memory_state = memory_state
+            # failures = []
+            # for i in range(len(memory_state)):
+            #     if memory_state[i] < 0:
+            #         failures.append(i)
+            # print(f'Failures: {failures}')
+            # print(f'Number of failures: {len(failures)}')
+            print("TESTING NEW PARTITION")
             stage_compute_performance = self._adj_compute_performance(stage_compute_performance, stage_memory_capacity,
                                                                       stage_memory_demand)
             if not stage_compute_performance:
-                return None, -1, None
+                return None, -1, None, failed_memory_stage
 
             cur_partition_attempt += 1
             print(f'adj_stage_compute_performance({cur_partition_attempt}): {stage_compute_performance}')
-        return None, -1, None
+        return None, -1, None, failed_memory_stage
 
 
 class DataLoadBalancer:
