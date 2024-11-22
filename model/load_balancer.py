@@ -135,15 +135,14 @@ class LayerLoadBalancer:
             if not memory_exceeded:
                 return layer_partition, cur_partition_attempt, memory_state, failed_memory_stage
             print("MEMORY EXCEEDED")
-            if min(memory_state) < 0:
-                failed_memory_stage.append(memory_state.index(min(memory_state)))
-            # failed_memory_state = memory_state
-            # failures = []
-            # for i in range(len(memory_state)):
-            #     if memory_state[i] < 0:
-            #         failures.append(i)
-            # print(f'Failures: {failures}')
-            # print(f'Number of failures: {len(failures)}')
+            if cur_partition_attempt == 1:
+                failed_memory_stage = memory_state
+            failures = []
+            for i in range(len(memory_state)):
+                if memory_state[i] < 0:
+                    failures.append(i)
+            print(f'Failures: {failures}')
+            print(f'Number of failures: {len(failures)}')
             print("TESTING NEW PARTITION")
             stage_compute_performance = self._adj_compute_performance(stage_compute_performance, stage_memory_capacity,
                                                                       stage_memory_demand)

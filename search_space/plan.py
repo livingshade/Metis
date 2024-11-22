@@ -254,26 +254,25 @@ class IntraStagePlanGenerator:
         return True
 
     def _next_strategy(self, strategies: List[Tuple[int, int]]) -> Union[List[Tuple[int, int]], None]:
-        if self.curr.memory_state:
+        if self.curr.failed_memory_stage != []:
+             memory_state = self.curr.failed_memory_stage
+        elif self.curr.memory_state:
             memory_state = self.curr.memory_state
         else:
             memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
+            
+        # if self.curr.memory_state:
+        #     memory_state = self.curr.memory_state
+        # else:
+        #     memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
+
 
         memory_state_dict = {}
         for stage_id, memory_state in enumerate(memory_state):
             memory_state_dict[stage_id] = memory_state
 
         sorted_stage_id = sorted(memory_state_dict, key=lambda x: memory_state_dict[x])
-        # print("sorted_stage_id: ", sorted_stage_id)
-        if self.curr.failed_memory_stage != []:
-            stage_id = self.curr.failed_memory_stage[0]
-            # print(f'SWAPPING STAGE {self.curr.failed_memory_stage[0]}')
-            dp_deg, tp_deg = strategies[stage_id]
-            if dp_deg != 1:
-                strategies[stage_id] = (dp_deg // 2, tp_deg * 2)
-                print("Adjusting stage: ", stage_id)
-                self.curr.failed_memory_stage.pop(0)
-                return strategies
+        print("sorted_stage_id: ", sorted_stage_id)
         for stage_id in sorted_stage_id:
             dp_deg, tp_deg = strategies[stage_id]
             if dp_deg != 1:
