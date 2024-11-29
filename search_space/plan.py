@@ -187,11 +187,13 @@ class IntraStagePlanGenerator:
         self.layer_load_balancer = layer_load_balancer
         self.max_tp_degree = max_tp_degree
         self.max_bs = max_bs
+        self.count = 0
 
         self.curr = IntraStagePlan(strategies=[], memory_state=[], layer_partition=[], num_repartition=0, failed_memory_stage=[])
 
     @property
     def has_next(self) -> bool:
+        self.count = 0
         if self.curr.num_repartition == 1:
             return False
         failed_memory_stage = []
@@ -199,26 +201,27 @@ class IntraStagePlanGenerator:
             if not self.curr.strategies:
                 self.curr.strategies = self._initial_strategies()
             else:
-                print('DFS STEP')
-                print("prev_strategies: ", self.curr.strategies) 
+                # print('DFS STEP')
+                self.count += 1
+                # print("prev_strategies: ", self.curr.strategies) 
                 self.curr.strategies = self._next_strategy(copy.deepcopy(self.curr.strategies))
 
             if not self.curr.strategies:
                 return False
 
             if self._is_valid_strategies(self.curr.strategies):
-                print(f'valid_strategies: {self.curr.strategies}')
+                # print(f'valid_strategies: {self.curr.strategies}')
                 stage_memory_capacity = self.stage_performance.get_device_group_memory_capacity()
                 intra_stage_compute_performance = self.stage_performance.get_intra_stage_compute_performance(
                     self.curr.strategies, self.gbs, self.batches)
-                print(f'stage_memory_capacity: {stage_memory_capacity}')
-                print(f'stage_compute_performance: {intra_stage_compute_performance}')
+                # print(f'stage_memory_capacity: {stage_memory_capacity}')
+                # print(f'stage_compute_performance: {intra_stage_compute_performance}')
 
-                layer_partition, num_repartition, memory_state, failed_memory_stage = (
+                layer_partition, num_repartition, memory_state, failed_memory_stage, new_partition_count = (
                     self.layer_load_balancer.partition_layer(self.inter_stage_plan, self.curr.strategies,
                                                              intra_stage_compute_performance, stage_memory_capacity))
-
-                print(f'layer_partition: {layer_partition}')
+                self.count += new_partition_count
+                # print(f'layer_partition: {layer_partition}')
                 if layer_partition:
                     self.curr.layer_partition = layer_partition
                     self.curr.memory_state = memory_state
@@ -245,11 +248,11 @@ class IntraStagePlanGenerator:
             mbs = self.gbs // dp_deg // self.batches
             if mbs == 0 or mbs > self.max_bs:
                 # log for debugging
-                print(f'invalid_strategy: dp_deg({dp_deg}), batches({self.batches}), mbs(0)')
+                # print(f'invalid_strategy: dp_deg({dp_deg}), batches({self.batches}), mbs(0)')
                 return False
             if tp_deg > self.max_tp_degree:
                 # log for debugging
-                print(f'invalid_strategy: tp_deg({tp_deg})')
+                # print(f'invalid_strategy: tp_deg({tp_deg})')
                 return False
         return True
 
@@ -272,12 +275,12 @@ class IntraStagePlanGenerator:
             memory_state_dict[stage_id] = memory_state
 
         sorted_stage_id = sorted(memory_state_dict, key=lambda x: memory_state_dict[x])
-        print("sorted_stage_id: ", sorted_stage_id)
+        # print("sorted_stage_id: ", sorted_stage_id)
         for stage_id in sorted_stage_id:
             dp_deg, tp_deg = strategies[stage_id]
             if dp_deg != 1:
                 strategies[stage_id] = (dp_deg // 2, tp_deg * 2)
-                print("Adjusting stage: ", stage_id)
+                # print("Adjusting stage: ", stage_id)
                 return strategies
 
         return None

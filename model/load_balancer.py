@@ -89,7 +89,7 @@ class LayerLoadBalancer:
                 extra_required_capacity += (c_capa - adj_c_capa)
 
         if sum(available_compute_capacity) < extra_required_capacity:
-            print('Even with the reallocation of layers, memory issues persist.')
+            # print('Even with the reallocation of layers, memory issues persist.')
             return None
 
         additional_alloc_sc_capa = [0. for _ in range(len(sc_capa))]
@@ -121,6 +121,7 @@ class LayerLoadBalancer:
     def partition_layer(self, plan: 'InterStagePlan', strategies: List[Tuple[int, int]],
                         stage_compute_performance: List[float], stage_memory_capacity: List[int],
                         max_partition_attempts: int = 3) -> Tuple[Union[List, None], int, Union[List, None]]:
+        new_partition_count = 0
         device_types = self._device_types_by_node_sequence(plan.node_sequence)
         failed_memory_stage = []
         cur_partition_attempt = 1
@@ -129,29 +130,30 @@ class LayerLoadBalancer:
             stage_memory_demand = self._get_stage_memory_demand(layer_partition, strategies, plan.device_groups,
                                                                 device_types, plan.gbs, plan.batches)
             memory_exceeded, memory_state = self._detect_out_of_memory(stage_memory_demand, stage_memory_capacity)
-            print(f'layer_partition: {layer_partition}')
-            print(f'stage_memory_demand: {stage_memory_demand}')
-            print(f'memory_state: {memory_state}')
+            # print(f'layer_partition: {layer_partition}')
+            # print(f'stage_memory_demand: {stage_memory_demand}')
+            # print(f'memory_state: {memory_state}')
             if not memory_exceeded:
-                return layer_partition, cur_partition_attempt, memory_state, failed_memory_stage
-            print("MEMORY EXCEEDED")
+                return layer_partition, cur_partition_attempt, memory_state, failed_memory_stage, new_partition_count
+            # print("MEMORY EXCEEDED")
             if cur_partition_attempt == 1:
                 failed_memory_stage = memory_state
             failures = []
             for i in range(len(memory_state)):
                 if memory_state[i] < 0:
                     failures.append(i)
-            print(f'Failures: {failures}')
-            print(f'Number of failures: {len(failures)}')
-            print("TESTING NEW PARTITION")
+            # print(f'Failures: {failures}')
+            # print(f'Number of failures: {len(failures)}')
+            # print("TESTING NEW PARTITION")
+            new_partition_count += 1
             stage_compute_performance = self._adj_compute_performance(stage_compute_performance, stage_memory_capacity,
                                                                       stage_memory_demand)
             if not stage_compute_performance:
-                return None, -1, None, failed_memory_stage
+                return None, -1, None, failed_memory_stage, new_partition_count
 
             cur_partition_attempt += 1
-            print(f'adj_stage_compute_performance({cur_partition_attempt}): {stage_compute_performance}')
-        return None, -1, None, failed_memory_stage
+            # print(f'adj_stage_compute_performance({cur_partition_attempt}): {stage_compute_performance}')
+        return None, -1, None, failed_memory_stage, new_partition_count
 
 
 class DataLoadBalancer:

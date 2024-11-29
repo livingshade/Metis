@@ -27,9 +27,10 @@ def cost_het_cluster(args: argparse.Namespace, gpu_cluster: GPUCluster, profile_
                                                     gbs=args.gbs, num_layers=args.num_layers,
                                                     variance=args.min_group_scale_variance,
                                                     max_permute_len=args.max_permute_len)
+    total_count = 0
     for inter_stage_plan in inter_stage_plan_generator:
 
-        print(f'\n\ninter_stage_plan: {inter_stage_plan}')
+        # print(f'\n\ninter_stage_plan: {inter_stage_plan}')
         stage_performance = StagePerformance(model_config, profile_data, gpu_cluster, inter_stage_plan)
         rank_device_map = stage_performance.get_device_placement()
 
@@ -40,13 +41,14 @@ def cost_het_cluster(args: argparse.Namespace, gpu_cluster: GPUCluster, profile_
             try:
                 cost = cost_estimator.get_cost(inter_stage_plan, intra_stage_plan.strategies,
                                                intra_stage_plan.layer_partition, rank_device_map)
-                print(f'cost: {cost}')
+                # print(f'cost: {cost}')
                 estimate_costs.append((inter_stage_plan.node_sequence, inter_stage_plan.device_groups,
                                        intra_stage_plan.strategies, inter_stage_plan.batches,
                                        intra_stage_plan.layer_partition, intra_stage_plan.num_repartition, cost))
             except KeyError as e:
                 print(f'KeyError: {e}')
-    return estimate_costs, cache
+            total_count += intra_stage_plan_generator.count
+    return estimate_costs, cache, total_count
 
 
 if __name__ == '__main__':
@@ -55,7 +57,7 @@ if __name__ == '__main__':
 
     data_loader = ProfileDataLoader(args.profile_data_path)
     profile_data, _ = data_loader.load_profile_data_all()
-    print(profile_data)
+    # print(profile_data)
 
     assert len(profile_data.keys()) > 0, 'There is no profiled data at the specified path.'
 
@@ -67,17 +69,19 @@ if __name__ == '__main__':
     cost_estimator = HeteroCostEstimator(profile_data, model_config, model_volume, gpu_cluster)
     layer_load_balancer = LayerLoadBalancer(gpu_cluster, profile_data, model_config, args.gbs)
 
-    trials = 1
+    trials = 10
     total_time = 0
     for i in range(trials):
         start_time = time.time()
-        estimate_costs, cache = cost_het_cluster(args, gpu_cluster, profile_data, model_config, cost_estimator, layer_load_balancer, cache)
+        estimate_costs, cache, count = cost_het_cluster(args, gpu_cluster, profile_data, model_config, cost_estimator, layer_load_balancer, cache)
         end_time = time.time()
         total_time += (end_time - start_time) * 1000
     print(f'Average time: {total_time / trials} ms')
     sorted_result = sorted(estimate_costs, key=lambda kv: kv[6])
-    print(f'len(costs): {len(estimate_costs)}')   
+    # print(f'len(costs): {len(estimate_costs)}')   
+    print("count:", count)
     print(
         'rank, cost, node_sequence, device_groups, strategies(dp_deg, tp_deg), batches(number of batch), layer_partition')
     for idx, result in enumerate(sorted_result):
         print(f'{idx + 1}, {result[6]}, {result[0]}, {result[1]}, {result[2]}, {result[3]}, {result[4]}')
+        break
