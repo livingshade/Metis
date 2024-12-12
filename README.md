@@ -4,10 +4,6 @@ This repository contains code to reproduce the experiments of our work with Impr
 Training.
 
 ## Install
-
-### Necessary Hardware
-Currently this codebase only works on MacOS because the shell file is designed for MacOS.
-
 To run this project, you need to install the required packages. Follow the steps below to install the dependencies using the [requirements.txt](requirements.txt) file.
 
 1. Clone the repository: 
@@ -15,12 +11,12 @@ To run this project, you need to install the required packages. Follow the steps
 git clone https://github.com/livingshade/Metis.git
 ```
 
-2. Navigate to the project directory:
+1. Navigate to the project directory:
 ```bash 
 cd Metis
 ```
 
-3. Install dependencies using the requirements.txt file: 
+1. Install dependencies using the requirements.txt file: 
 ```bash
 # If using conda
 conda create -n HTDR python=3.11 pip -y
@@ -41,12 +37,20 @@ python3 gen_hostfile.py 16
 
 3. Run the simulation experiment with naive Metis. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value is `612`, then this step was done correctly.
 ```bash
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=False
+
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=False
 ```
 
 4. Run the simulation experiment with our method (same commands as before but change `USE_STRAT` to `True`). Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value is `562`, then this step was done correctly.
 ```bash
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=True
+
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=True
 ```
 
 ## How to read results
@@ -62,10 +66,18 @@ python3 gen_synth_data.py 20 128
 python3 gen_hostfile.py 32
 
 # Use Metis
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=False
 
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=False
+
 # Use ours
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=True
+
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=True
 ```
 
 ### Third Row of Table 1 (20 layers, 64 A100s + 64 V100s)
@@ -75,10 +87,17 @@ python3 gen_synth_data.py 20 128
 python3 gen_hostfile.py 64
 
 # Use Metis
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=False
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=False
 
 # Use ours
+#MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=True
+
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=20 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=5 USE_STRAT=True
 ```
 
 ### Fourth Row Row of Table 1 (40 layers, 128 A100s + 128 V100s)
@@ -88,10 +107,18 @@ python3 gen_synth_data.py 40 128
 python3 gen_hostfile.py 128
 
 # Use Metis
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=40 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=1 USE_STRAT=False
 
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=40 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=1 USE_STRAT=False
+
 # Use ours
+# MacOS
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=40 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=1 USE_STRAT=True
+
+# Linux
+source ./scripts/cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=40 GBS=128 MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=1 USE_STRAT=True
 ```
 
 #### Supported Python Versions
