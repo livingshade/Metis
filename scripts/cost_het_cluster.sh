@@ -1,4 +1,3 @@
-# Copyright 2024 Samsung Electronics Co., Ltd. All Rights Reserved
 #!/bin/bash
 
 cd "$(dirname $"0")"
@@ -44,6 +43,7 @@ cluster_options="
                 "
 
 LOG_PATH="${HOME_DIR}/logs"
+mkdir -p "$LOG_PATH"
 current_time=$(date "+%Y.%m.%d-%H.%M.%S")
 
 env_options="
@@ -61,9 +61,12 @@ hetspeed_options="
                     --max_permute_len=${MAX_PERMUTE_LEN}
                     --trials=${TRIALS}
                  "
+if [ "${USE_STRAT}" == "True" ]; then
+  model_options="--use_strat ${model_options}"
+fi
 
-run_cmd="python3 ../cost_het_cluster.py ${model_options} ${model_specific_options} ${cluster_options} ${hetspeed_options} ${env_options}
-         &> ${LOG_PATH}/${MODEL_NAME}_${MODEL_SIZE}_${current_time}.log"
+run_cmd="python3 cost_het_cluster.py ${model_options} ${model_specific_options} ${cluster_options} ${hetspeed_options} ${env_options}
+         &> ${LOG_PATH}/${MODEL_NAME}_${MODEL_SIZE}.log"
 
 echo ${run_cmd}
 eval ${run_cmd}
