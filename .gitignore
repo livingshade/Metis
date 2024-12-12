@@ -6,3 +6,4 @@
 /profile
 .DS_Store
 hostfile
+logs/GPT_1.5B.log
