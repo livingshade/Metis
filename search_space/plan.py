@@ -178,7 +178,7 @@ class InterStagePlanGenerator:
 
 class IntraStagePlanGenerator:
     def __init__(self, inter_stage_plan: InterStagePlan, stage_performance: StagePerformance,
-                 layer_load_balancer: LayerLoadBalancer, max_tp_degree: int, max_bs: int):
+                 layer_load_balancer: LayerLoadBalancer, max_tp_degree: int, max_bs: int, strat: bool):
         self.inter_stage_plan = inter_stage_plan
         self.device_groups = inter_stage_plan.device_groups
         self.gbs = inter_stage_plan.gbs
@@ -188,6 +188,7 @@ class IntraStagePlanGenerator:
         self.max_tp_degree = max_tp_degree
         self.max_bs = max_bs
         self.count = 0
+        self.strat = strat
 
         self.curr = IntraStagePlan(strategies=[], memory_state=[], layer_partition=[], num_repartition=0, failed_memory_stage=[])
 
@@ -204,7 +205,10 @@ class IntraStagePlanGenerator:
                 # print('DFS STEP')
                 self.count += 1
                 # print("prev_strategies: ", self.curr.strategies) 
-                self.curr.strategies = self._next_strategy(copy.deepcopy(self.curr.strategies))
+                if (self.strat):
+                    self.curr.strategies = self._next_strategy(copy.deepcopy(self.curr.strategies), use_strat=True)
+                else:
+                    self.curr.strategies = self._next_strategy(copy.deepcopy(self.curr.strategies))
 
             if not self.curr.strategies:
                 return False
@@ -256,18 +260,19 @@ class IntraStagePlanGenerator:
                 return False
         return True
 
-    def _next_strategy(self, strategies: List[Tuple[int, int]]) -> Union[List[Tuple[int, int]], None]:
-        if self.curr.failed_memory_stage != []:
-             memory_state = self.curr.failed_memory_stage
-        elif self.curr.memory_state:
-            memory_state = self.curr.memory_state
+    def _next_strategy(self, strategies: List[Tuple[int, int]], use_strat=False) -> Union[List[Tuple[int, int]], None]:
+        if use_strat:
+            if self.curr.failed_memory_stage != []:
+                memory_state = self.curr.failed_memory_stage
+            elif self.curr.memory_state:
+                memory_state = self.curr.memory_state
+            else:
+                memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
         else:
-            memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
-            
-        # if self.curr.memory_state:
-        #     memory_state = self.curr.memory_state
-        # else:
-        #     memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
+            if self.curr.memory_state:
+                memory_state = self.curr.memory_state
+            else:
+                memory_state = [1 / dp_deg for (dp_deg, tp_deg) in self.curr.strategies]
 
 
         memory_state_dict = {}

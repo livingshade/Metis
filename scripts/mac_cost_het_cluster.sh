@@ -67,9 +67,13 @@ hetspeed_options="\
                     --max_profiled_batch_size=${MAX_PROFILED_BATCH_SIZE} \
                     --min_group_scale_variance=${SCALE_VARIANCE} \
                     --max_permute_len=${MAX_PERMUTE_LEN} \
+                    --trials=${TRIALS} \
                  "
 
 # Construct and run command
+if ${USE_STRAT}; then
+    model_options="--use_strat ${model_options}"
+fi
 run_cmd="python3 ../cost_het_cluster.py ${model_options} ${model_specific_options} ${cluster_options} ${hetspeed_options} ${env_options} > ${LOG_PATH}/${MODEL_NAME}_${MODEL_SIZE}.log 2>&1"
 
 echo "${run_cmd}"

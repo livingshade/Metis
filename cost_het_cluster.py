@@ -34,7 +34,7 @@ def cost_het_cluster(args: argparse.Namespace, gpu_cluster: GPUCluster, profile_
         stage_performance = StagePerformance(model_config, profile_data, gpu_cluster, inter_stage_plan)
         rank_device_map = stage_performance.get_device_placement()
 
-        intra_stage_plan_generator = IntraStagePlanGenerator(inter_stage_plan, stage_performance, layer_load_balancer, args.max_profiled_tp_degree, args.max_profiled_batch_size)
+        intra_stage_plan_generator = IntraStagePlanGenerator(inter_stage_plan, stage_performance, layer_load_balancer, args.max_profiled_tp_degree, args.max_profiled_batch_size, args.use_strat)
 
         while intra_stage_plan_generator.has_next:
             intra_stage_plan = intra_stage_plan_generator.next()
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     cost_estimator = HeteroCostEstimator(profile_data, model_config, model_volume, gpu_cluster)
     layer_load_balancer = LayerLoadBalancer(gpu_cluster, profile_data, model_config, args.gbs)
 
-    trials = 10
+    trials = args.trials
     total_time = 0
     for i in range(trials):
         start_time = time.time()

@@ -170,6 +170,8 @@ def clear_profile_dir(profile_dir):
             print(f"Failed to delete {file_path}. Reason: {e}")
 
 def main():
+    if not os.path.exists("./profile"):
+        os.makedirs("./profile")
     parser = argparse.ArgumentParser(description="Generate synthetic data files")
     parser.add_argument("layers", type=int, help="Number of layers")
     parser.add_argument("batch_size", type=int, help="Max batch size")
