@@ -1,4 +1,0 @@
-Average time: 83.51161479949951 ms
-count: 612
-rank, cost, node_sequence, device_groups, strategies(dp_deg, tp_deg), batches(number of batch), layer_partition
-1, 1898.3743157594101, (<DeviceType.A100: 'a100'>, <DeviceType.V100: 'v100'>), [16, 16], [(16, 1), (16, 1)], 1, [0, 7, 10]
