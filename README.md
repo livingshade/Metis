@@ -35,24 +35,24 @@ python3 gen_synth_data.py 10 128
 python3 gen_hostfile.py 16
 ```
 
-3. Run the simulation experiment with naive Metis. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in [logs/GPT_1.5B.log](logs/GPT_1.5B.log)
+3. Run the simulation experiment with naive Metis. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value is `612`, then this step was done correctly.
 ```bash
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=False
 ```
 
-4. Run the simulation experiment with our method. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in [logs/GPT_1.5B.log](logs/GPT_1.5B.log)
+4. Run the simulation experiment with our method (same commands as before but change `USE_STRAT` to `True`). Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value is `562`, then this step was done correctly.
 ```bash
 sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODEL_NAME=GPT MODEL_SIZE=1.5B NUM_LAYERS=10 GBS=128  MAX_PROFILED_TP=128 MAX_PROFILED_BATCH_SIZE=128 SCALE_VARIANCE=1 MAX_PERMUTE_LEN=128 TRIALS=10 USE_STRAT=True
 ```
 
 ## How to read results
-Generate synthetic profiling data for a 10 layer model with a global batch size of 128.
+Count is the number of search steps, average time is the average wall clock time out of `TRIALS` trials. The second value in the 4th line of `logs/GPT_1.5B.log` is the cost of the best plan.
 
 ## Recreating Rest of the Table
 NOTE: Wall-clock time has variance due to many factors such as hardware and current load on your host device. We mitigated this variance by taking the average of 10 trials (set by the `TRIALS=10`) argument. Cost of best plan of our method may be occasionally worse than Metis, but on average, the costs of our plans is no worse than Metis's. The step counts are fixed and our count should ALWAYS be lower than Metis's.
 
 ### Second Row of Table 1 (20 layers, 32 A100s + 32 V100s)
-Same exact commands as previous row, but change the 10 to a 20 in the first command, 16 to 32 in the second, and 10 to 20 for `NUM_LAYERS` when running either shell script. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. This may take a while.
+Same exact commands as previous row, but change the 10 to a 20 in the first command, 16 to 32 in the second, and 10 to 20 for `NUM_LAYERS` when running either shell script. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. This may take a while. The results should be found in `logs/GPT_1.5B.log`. If the count value of Metis is `58078` and ours is `41208`, then this step was done correctly.
 ```bash
 python3 gen_synth_data.py 20 128 
 python3 gen_hostfile.py 32
@@ -65,7 +65,7 @@ sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODE
 ```
 
 ### Third Row of Table 1 (20 layers, 64 A100s + 64 V100s)
-Same exact commands as previous row, but 32 to 64 in the second command. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. This 
+Same exact commands as previous row, but 32 to 64 in the second command. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value of Metis is `3734` and ours is `3482`, then this step was done correctly.
 ```bash
 python3 gen_synth_data.py 20 128 
 python3 gen_hostfile.py 64
@@ -78,7 +78,7 @@ sh ./scripts/mac_cost_het_cluster.sh HOME_DIR='ABSOLUTE_FILE_PATH_TO_METIS' MODE
 ```
 
 ### Fourth Row Row of Table 1 (40 layers, 128 A100s + 128 V100s)
-This one takes a very long time (30 min per trial), so we only use 1 trial. Same exact commands as previous row, but change the 20 to a 40 in the first command, 64 to 128 in the second, and 20 to 40 for `NUM_LAYERS` when running either shell script. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. 
+This one takes a very long time (30 min per trial), so we only use 1 trial. Same exact commands as previous row, but change the 20 to a 40 in the first command, 64 to 128 in the second, and 20 to 40 for `NUM_LAYERS` when running either shell script. Please make sure to pass in the absolute file path on your device to Metis (the local repository) to `HOME_DIR`. The results should be found in `logs/GPT_1.5B.log`. If the count value of Metis is `1714619` and ours is `1553492`, then this step was done correctly.
 ```bash
 python3 gen_synth_data.py 40 128 
 python3 gen_hostfile.py 128
