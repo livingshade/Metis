@@ -4,6 +4,10 @@ This repository contains code to reproduce the experiments of our work with Impr
 Training.
 
 ## Install
+
+### Necessary Hardware
+Currently this codebase only works on MacOS because the shell file is designed for MacOS.
+
 To run this project, you need to install the required packages. Follow the steps below to install the dependencies using the [requirements.txt](requirements.txt) file.
 
 1. Clone the repository: 
