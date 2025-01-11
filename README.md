@@ -1,7 +1,8 @@
 # Final Code for CS598: How to do Research (Group 3)
+[Class Paper](./docs/paper.pdf)
 
 This repository contains code to reproduce the experiments of our work with Improved Intra-Operator Parallelism for Distributed LLM
-Training.
+Training. The associated class paper can be found above.
 
 ## Install
 To run this project, you need to install the required packages. Follow the steps below to install the dependencies using the [requirements.txt](requirements.txt) file.
